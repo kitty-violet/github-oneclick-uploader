@@ -1,0 +1,37 @@
+bin/
+obj/
+artifacts/
+*.user
+*.suo
+*.cache
+*.exe
+*.zip
+
+# Local secrets and project-upload leftovers.
+.env
+.env.*
+*.pem
+*.pfx
+*.p12
+*.key
+id_rsa
+id_dsa
+credentials.json
+token.json
+*.log
+*.bak
+*.bak_*
+
+# OS/editor noise.
+.vs/
+Thumbs.db
+Desktop.ini
+
+# Added by GitHub One-Click Uploader
+node_modules/
+dist/
+latest.tsv
+daily-snapshots.tsv
+snapshots.csv
+cleanup-log.txt
+startup-log.txt
