@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <RootNamespace>GitHubUploader</RootNamespace>
-    <AssemblyName>GitHubUploader</AssemblyName>
+    <AssemblyName>GitHubOneClickUploader</AssemblyName>
     <PlatformTarget>x64</PlatformTarget>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
@@ -16,6 +16,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
     <Compile Include="GitHubUploader.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

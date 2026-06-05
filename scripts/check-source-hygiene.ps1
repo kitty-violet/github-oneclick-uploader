@@ -5,6 +5,11 @@ $ignoredDirs = @(".git", "artifacts", "bin", "obj", ".vs")
 $blockedNames = @(".env", ".env.local", "id_rsa", "id_dsa", "credentials.json", "token.json")
 $patterns = @(
   "C:\\Users\\[A-Za-z0-9._-]+",
+  ("E:" + "\\codex-tools"),
+  ("D:" + "\\git"),
+  ("Len" + "ovo"),
+  ("kitty" + "-violet"),
+  ("209" + "858054"),
   "AIza[0-9A-Za-z_-]{20,}",
   "AQ\.[A-Za-z0-9_-]{20,}",
   "sk-[A-Za-z0-9_-]{20,}",
@@ -23,7 +28,7 @@ Get-ChildItem -LiteralPath $repoRoot -Recurse -Force -File | ForEach-Object {
     $failures.Add("Blocked file: $relative")
     return
   }
-  if (@(".exe", ".dll", ".png", ".jpg", ".jpeg", ".zip") -contains $file.Extension.ToLowerInvariant()) { return }
+  if (@(".exe", ".dll", ".png", ".jpg", ".jpeg", ".ico", ".zip") -contains $file.Extension.ToLowerInvariant()) { return }
   $text = Get-Content -LiteralPath $file.FullName -Raw -ErrorAction SilentlyContinue
   foreach ($pattern in $patterns) {
     if ($text -match $pattern) {

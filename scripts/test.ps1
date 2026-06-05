@@ -1,11 +1,9 @@
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$exe = Join-Path $repoRoot "artifacts\bin\GitHubUploader.exe"
+$exe = Join-Path $repoRoot "artifacts\bin\GitHubOneClickUploader.exe"
 
-if (-not (Test-Path $exe)) {
-  & (Join-Path $repoRoot "scripts\build.ps1")
-}
+& (Join-Path $repoRoot "scripts\build.ps1")
 
 $process = Start-Process -FilePath $exe -ArgumentList "--self-test" -Wait -PassThru
 if ($process.ExitCode -ne 0) {

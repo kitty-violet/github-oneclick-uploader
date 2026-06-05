@@ -6,6 +6,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $source = Join-Path $repoRoot "src\GitHubUploader\GitHubUploader.cs"
+$assemblyInfo = Join-Path $repoRoot "src\GitHubUploader\AssemblyInfo.cs"
 
 if (-not $OutputDir) {
   $OutputDir = Join-Path $repoRoot "artifacts\bin"
@@ -23,19 +24,26 @@ if (-not $csc) {
   throw "Could not find csc.exe under $env:WINDIR\Microsoft.NET\Framework*."
 }
 
-$out = Join-Path $OutputDir "GitHubUploader.exe"
+$icon = Join-Path $repoRoot "assets\app-icon.ico"
+if (-not (Test-Path $icon)) {
+  & (Join-Path $repoRoot "scripts\create-icon.ps1")
+}
+
+$out = Join-Path $OutputDir "GitHubOneClickUploader.exe"
 
 & $csc `
   /nologo `
-  /target:winexe `
+  /target:exe `
   /platform:x64 `
   /optimize+ `
   /warn:4 `
   /out:$out `
+  /win32icon:$icon `
   /r:System.dll `
   /r:System.Core.dll `
   /r:System.Windows.Forms.dll `
   /r:System.Drawing.dll `
+  $assemblyInfo `
   $source
 
 Write-Host "Built: $out"

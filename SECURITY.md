@@ -6,7 +6,11 @@ The app shells out to Git and GitHub CLI. It does not implement its own GitHub a
 
 ## Reporting Security Issues
 
-Open a GitHub issue with reproduction steps and redact all secrets, local paths, and account-specific data.
+Please do not open a public issue for a vulnerability.
+
+Use GitHub's private vulnerability reporting or Security Advisory flow when it is enabled for the repository. If private reporting is not available, contact the maintainer privately before posting reproduction details.
+
+Always redact secrets, local paths, account names, and tokens from any report.
 
 ## Design Principles
 

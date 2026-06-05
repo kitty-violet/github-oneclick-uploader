@@ -13,3 +13,7 @@ It does not:
 - create remote logs.
 
 GitHub CLI stores authentication securely using its own credential storage.
+
+## Device Login
+
+The GitHub device code is temporary. The app may display the code copied by GitHub CLI so you can paste it into GitHub's authorization page. The app does not store that code.
