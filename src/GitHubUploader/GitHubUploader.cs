@@ -38,7 +38,7 @@ namespace GitHubUploader
 
     public static class Program
     {
-        public const string VersionText = "0.1.0";
+        public const string VersionText = "0.1.1";
 
         [STAThread]
         public static int Main(string[] args)
@@ -131,7 +131,7 @@ namespace GitHubUploader
             page.ColumnCount = 1;
             page.RowStyles.Add(new RowStyle(SizeType.Absolute, 82));
             page.RowStyles.Add(new RowStyle(SizeType.Absolute, 100));
-            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 192));
+            page.RowStyles.Add(new RowStyle(SizeType.Absolute, 260));
             page.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             root.Controls.Add(page, 1, 0);
 
@@ -245,7 +245,7 @@ namespace GitHubUploader
             var layout = new TableLayoutPanel();
             layout.Dock = DockStyle.Fill;
             layout.ColumnCount = 4;
-            layout.RowCount = 5;
+            layout.RowCount = 6;
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 104));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             layout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 118));
@@ -254,7 +254,8 @@ namespace GitHubUploader
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
             layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 38));
-            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 40));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 46));
             card.Controls.Add(layout);
 
             var title = new Label();
@@ -323,36 +324,37 @@ namespace GitHubUploader
             actionPanel.Dock = DockStyle.Fill;
             actionPanel.FlowDirection = FlowDirection.LeftToRight;
             actionPanel.WrapContents = false;
-            actionPanel.Padding = new Padding(0, 5, 0, 0);
-            layout.Controls.Add(actionPanel, 1, 4);
-            layout.SetColumnSpan(actionPanel, 3);
+            actionPanel.Padding = new Padding(0, 7, 0, 0);
+            layout.Controls.Add(actionPanel, 0, 5);
+            layout.SetColumnSpan(actionPanel, 4);
 
-            checkButton.Text = "Check project";
-            checkButton.Width = 132;
-            checkButton.Height = 32;
+            checkButton.Text = "Safety Check";
+            checkButton.Width = 156;
+            checkButton.Height = 36;
             StyleButton(checkButton, false);
             checkButton.Click += async (s, e) => await CheckProject();
             actionPanel.Controls.Add(checkButton);
 
             loginButton.Text = "GitHub Login";
             loginButton.Width = 132;
-            loginButton.Height = 32;
+            loginButton.Height = 36;
             StyleButton(loginButton, false);
             loginButton.Click += async (s, e) => await StartGitHubLogin();
             actionPanel.Controls.Add(loginButton);
 
-            uploadButton.Text = "Upload now";
-            uploadButton.Width = 132;
-            uploadButton.Height = 32;
+            uploadButton.Text = "Upload to GitHub";
+            uploadButton.Width = 170;
+            uploadButton.Height = 36;
             StyleButton(uploadButton, true);
             uploadButton.Click += async (s, e) => await UploadProject();
             actionPanel.Controls.Add(uploadButton);
 
             projectSummaryLabel.Dock = DockStyle.Fill;
-            projectSummaryLabel.ForeColor = textMuted;
-            projectSummaryLabel.Font = new Font("Segoe UI", 8);
+            projectSummaryLabel.ForeColor = accentDark;
+            projectSummaryLabel.Font = new Font("Segoe UI", 9, FontStyle.Bold);
             projectSummaryLabel.TextAlign = ContentAlignment.MiddleLeft;
             layout.Controls.Add(projectSummaryLabel, 0, 4);
+            layout.SetColumnSpan(projectSummaryLabel, 4);
 
             return card;
         }
@@ -505,9 +507,18 @@ namespace GitHubUploader
         {
             var repo = NormalizeRepoName(repoText.Text);
             var visibility = publicCheck.Checked ? "Public" : "Private";
+            var hasFolder = Directory.Exists(NormalizeFolder(folderText.Text));
+            if (!hasFolder)
+            {
+                projectSummaryLabel.Text = "Step 1: choose a project folder.";
+                statusLabel.Text = "Choose a project folder, then run Safety Check.";
+                return;
+            }
+
             projectSummaryLabel.Text = string.IsNullOrWhiteSpace(repo)
-                ? "Repository name will be suggested from the selected folder."
-                : visibility + " repository: " + repo;
+                ? "Step 2: enter or accept a repository name, then click Safety Check."
+                : "Next: click Safety Check. Then upload to " + visibility + " repository: " + repo + ".";
+            statusLabel.Text = "Project selected. Next: click Safety Check.";
         }
 
         private void SetupFindingsList()
@@ -537,6 +548,7 @@ namespace GitHubUploader
                 {
                     folderText.Text = dialog.SelectedPath;
                     repoText.Text = SuggestRepoName(dialog.SelectedPath);
+                    statusLabel.Text = "Project selected. Next: click Safety Check.";
                 }
             }
         }
@@ -700,6 +712,9 @@ namespace GitHubUploader
             safetyStatusLabel.Text = blocking ? "Needs review" : "Clear";
             uploadStatusLabel.Text = blocking ? "Blocked" : "Ready";
             statusLabel.Text = blocking ? "Check found blocking issues." : "Check passed.";
+            projectSummaryLabel.Text = blocking
+                ? "Safety Check found blocking issues. Review the findings before uploading."
+                : "Safety Check passed. Next: click Upload to GitHub.";
             AppendLog(blocking ? "Check failed." : "Check passed.");
             return !blocking;
         }
@@ -761,6 +776,16 @@ namespace GitHubUploader
         {
             findingsList.BeginUpdate();
             findingsList.Items.Clear();
+            if (!lastFindings.Any())
+            {
+                var clear = new ListViewItem("Clear");
+                clear.SubItems.Add("No safety findings. You can upload after confirming the repository settings.");
+                clear.SubItems.Add("");
+                clear.ForeColor = accentDark;
+                findingsList.Items.Add(clear);
+                findingsList.EndUpdate();
+                return;
+            }
             foreach (var finding in lastFindings.OrderBy(x => SeverityRank(x.Severity)).ThenBy(x => x.PathText))
             {
                 var item = new ListViewItem(finding.Severity);
